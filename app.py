@@ -18,9 +18,9 @@ def get_recommendations(body_text, target_keyword, destination_url):
     openai.api_key = st.secrets["OPENAI_API_KEY"]
 
     # Refining the prompt
-    prompt = (f"Given the text, identify complete sentences where a link with the anchor text '{target_keyword}' pointing to "
-              f"'{destination_url}' can be added. Modify the sentence minimally, ensuring the original meaning is preserved and the anchor text is hyperlinked. "
-              f"Provide the recommendations as 'original sentence' with 'modified sentence'.\n\nText: {body_text}\n")
+    prompt = (f"Identify complete sentences in the text where a hyperlink with the anchor text '{target_keyword}' pointing to "
+              f"'{destination_url}' can be added. Modify the sentence minimally while retaining the original meaning. "
+              f"Format the recommendation as: 'Original: [original sentence]' 'Modified: [modified sentence with hyperlinked anchor text]'.\n\nText: {body_text}\n")
     
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo-16k",
@@ -32,7 +32,11 @@ def get_recommendations(body_text, target_keyword, destination_url):
     
     # Extracting the recommendations
     text = response['choices'][0]['message']['content']
-    recommendations = [rec.strip() for rec in text.split('\n') if " with " in rec and target_keyword in rec]
+    recommendations = []
+    for rec in text.split('\n'):
+        if "Original:" in rec and "Modified:" in rec:
+            recommendations.append(rec)
+    
     return recommendations[:3]  # Limit to 3 recommendations
 
 def main():
@@ -52,7 +56,8 @@ def main():
                 st.subheader(f"Recommendations for {url}")
                 for rec in recommendations:
                     # Displaying the original and modified sentences with enhanced formatting
-                    original, modified = rec.split(" with ", 1)  
+                    original = rec.split("Modified:")[0].replace("Original:", "").strip()
+                    modified = rec.split("Modified:")[1].strip()
                     st.markdown(f"### Replace:\n\n{original}\n\n### With:\n\n{modified}", unsafe_allow_html=True)
 
 if __name__ == "__main__":
