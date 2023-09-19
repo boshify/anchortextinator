@@ -18,7 +18,7 @@ def get_recommendations(body_text, target_keyword):
     openai.api_key = st.secrets["OPENAI_API_KEY"]
 
     response = openai.Completion.create(
-        engine="davinci",
+        engine="gpt-3.5-turbo",
         prompt=f"Find the best placements in the text for the keyword '{target_keyword}' linking to a destination page.\n\nText: {body_text}\n",
         max_tokens=200,
         n=3,
@@ -35,8 +35,9 @@ def main():
     source_urls = st.text_area("Enter list of source URLs (one per line)")
     target_keyword = st.text_input("Enter target keyword")
 
-    if st.button('Get Recommendations'):
-        urls = [url.strip() for url in source_urls.split('\n') if url.strip()]
+if st.button('Get Recommendations'):
+    urls = [url.strip() for url_segment in source_urls.split('\n') for url in url_segment.split('\t') if url.strip()]
+
         
         for url in urls:
             body_text = get_body_text(url)
