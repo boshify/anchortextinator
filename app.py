@@ -9,10 +9,12 @@ def get_body_text(url):
         response = requests.get(url, headers=headers)
         response.raise_for_status()
         soup = BeautifulSoup(response.content, 'html.parser')
-        return ' '.join([p.text for p in soup.find_all('p')])
+        # Extracting text from p, div, and span tags
+        return ' '.join([tag.text for tag in soup.find_all(['p', 'div', 'span'])])
     except Exception as e:
         st.warning(f"Failed to crawl {url}. Error: {e}")
         return None
+
 
 def get_recommendations(body_text, target_keyword, destination_url):
     openai.api_key = st.secrets["OPENAI_API_KEY"]
