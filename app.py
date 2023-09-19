@@ -51,7 +51,7 @@ def main():
                 st.subheader(f"Recommendations for {url}")
                 for rec in recommendations:
                     # Displaying the original and modified sentences
-                    original, modified = rec.split(" with ")
+                    original, modified = rec.split(" with ", 1)  # Split only at the first occurrence
                     st.markdown(f"**Replace:**\n\n{original}\n\n**With:**\n\n{modified}", unsafe_allow_html=True)
 
 if __name__ == "__main__":
