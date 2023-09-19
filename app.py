@@ -19,7 +19,7 @@ def get_recommendations(body_text, target_keyword):
 
     # Using chat-based approach for gpt-3.5-turbo model
     response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
+        model="gpt-3.5-turbo-16k",
         messages=[
             {"role": "system", "content": "You are a helpful assistant."},
             {"role": "user", "content": f"Find the best placements in the text for the keyword '{target_keyword}' linking to a destination page.\n\nText: {body_text}\n"},
