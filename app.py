@@ -19,7 +19,7 @@ def get_recommendations(body_text, target_keyword):
 
     # Using chat-based approach for gpt-3.5-turbo model
     response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo-16k",
+        model="gpt-3.5-turbo",
         messages=[
             {"role": "system", "content": "You are a helpful assistant."},
             {"role": "user", "content": f"Find the best placements in the text for the keyword '{target_keyword}' linking to a destination page.\n\nText: {body_text}\n"},
@@ -31,7 +31,6 @@ def get_recommendations(body_text, target_keyword):
     # Splitting the text into separate recommendations for simplicity
     recommendations = text.split('\n')
     return recommendations
-
 
 def main():
     st.title('The Anchor Textinator')
@@ -49,7 +48,7 @@ def main():
                 recommendations = get_recommendations(body_text, target_keyword)
                 st.subheader(f"Recommendations for {url}")
                 for idx, rec in enumerate(recommendations, 1):
-                    st.text_box(f"Option {idx}", rec)
+                    st.text_area(f"Option {idx}", rec)
 
 if __name__ == "__main__":
     main()
