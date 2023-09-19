@@ -17,16 +17,21 @@ def get_body_text(url):
 def get_recommendations(body_text, target_keyword):
     openai.api_key = st.secrets["OPENAI_API_KEY"]
 
-    response = openai.Completion.create(
-        engine="gpt-3.5-turbo",
-        prompt=f"Find the best placements in the text for the keyword '{target_keyword}' linking to a destination page.\n\nText: {body_text}\n",
-        max_tokens=2000,
-        n=3,
-        stop=["Text:"]
+    # Using chat-based approach for gpt-3.5-turbo model
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {"role": "system", "content": "You are a helpful assistant."},
+            {"role": "user", "content": f"Find the best placements in the text for the keyword '{target_keyword}' linking to a destination page.\n\nText: {body_text}\n"},
+        ]
     )
     
-    recommendations = [choice['text'].strip() for choice in response.choices]
+    # Assuming the assistant's reply is what we want
+    text = response['choices'][0]['message']['content']
+    # Splitting the text into separate recommendations for simplicity
+    recommendations = text.split('\n')
     return recommendations
+
 
 def main():
     st.title('The Anchor Textinator')
