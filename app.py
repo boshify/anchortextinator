@@ -14,22 +14,24 @@ def get_body_text(url):
         st.warning(f"Failed to crawl {url}. Error: {e}")
         return None
 
-def get_recommendations(body_text, target_keyword):
+def get_recommendations(body_text, target_keyword, destination_url):
     openai.api_key = st.secrets["OPENAI_API_KEY"]
 
-    # Using chat-based approach for gpt-3.5-turbo model
+    # Using chat-based approach for gpt-3.5-turbo-16k model
+    prompt = f"Given the text, provide recommendations on which sentences can be replaced to include a link with the anchor text '{target_keyword}' pointing to '{destination_url}'. Modify the sentence slightly if needed for a better fit. \n\nText: {body_text}\n"
+    
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo-16k",
         messages=[
-            {"role": "system", "content": "You are a helpful assistant."},
-            {"role": "user", "content": f"Find the best placements in the text for the keyword '{target_keyword}' linking to a destination page.\n\nText: {body_text}\n"},
+            {"role": "system", "content": "You are an SEO expert and master of internal linking."},
+            {"role": "user", "content": prompt},
         ]
     )
     
     # Assuming the assistant's reply is what we want
     text = response['choices'][0]['message']['content']
     # Splitting the text into separate recommendations and filtering out empty lines
-    recommendations = [rec.strip() for rec in text.split('\n') if rec.strip()]
+    recommendations = [rec.strip() for rec in text.split('\n') if rec.strip() and target_keyword in rec]
     return recommendations[:3]  # Limit to 3 recommendations
 
 def main():
@@ -45,17 +47,12 @@ def main():
         for url in urls:
             body_text = get_body_text(url)
             if body_text:
-                recommendations = get_recommendations(body_text, target_keyword)
+                recommendations = get_recommendations(body_text, target_keyword, destination_url)
                 st.subheader(f"Recommendations for {url}")
                 for rec in recommendations:
-                    # Extract the quoted content and format it with the hyperlink
-                    start = rec.find('"') + 1
-                    end = rec.rfind('"')
-                    if start < end:
-                        excerpt = rec[start:end]
-                        # Wrapping the target keyword in a hyperlink
-                        linked_excerpt = excerpt.replace(target_keyword, f'<a href="{destination_url}">{target_keyword}</a>')
-                        st.markdown(f"...{linked_excerpt}...", unsafe_allow_html=True)
+                    # Displaying the original and modified sentences
+                    original, modified = rec.split(" with ")
+                    st.markdown(f"**Replace:**\n\n{original}\n\n**With:**\n\n{modified}", unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()
