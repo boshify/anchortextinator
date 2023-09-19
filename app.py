@@ -38,6 +38,10 @@ def main():
     if st.button('Get Recommendations'):
         urls = [url.strip() for url in source_urls.split('\n') if url.strip()]
         
+    if st.button('Get Recommendations'):
+        # This is where you replace with the new code
+        urls = [url.strip() for url in source_urls.split('\n') if url.strip()]
+        
         for url in urls:
             body_text = get_body_text(url)
             if body_text:
