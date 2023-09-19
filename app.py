@@ -28,9 +28,9 @@ def get_recommendations(body_text, target_keyword):
     
     # Assuming the assistant's reply is what we want
     text = response['choices'][0]['message']['content']
-    # Splitting the text into separate recommendations for simplicity
-    recommendations = text.split('\n')
-    return recommendations
+    # Splitting the text into separate recommendations and filtering out empty lines
+    recommendations = [rec.strip() for rec in text.split('\n') if rec.strip()]
+    return recommendations[:3]  # Limit to 3 recommendations
 
 def main():
     st.title('The Anchor Textinator')
@@ -47,8 +47,15 @@ def main():
             if body_text:
                 recommendations = get_recommendations(body_text, target_keyword)
                 st.subheader(f"Recommendations for {url}")
-                for idx, rec in enumerate(recommendations, 1):
-                    st.text_area(f"Option {idx}", rec)
+                for rec in recommendations:
+                    # Extract the quoted content and format it with the hyperlink
+                    start = rec.find('"') + 1
+                    end = rec.rfind('"')
+                    if start < end:
+                        excerpt = rec[start:end]
+                        # Wrapping the target keyword in a hyperlink
+                        linked_excerpt = excerpt.replace(target_keyword, f'<a href="{destination_url}">{target_keyword}</a>')
+                        st.markdown(f"...{linked_excerpt}...", unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()
