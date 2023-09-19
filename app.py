@@ -17,9 +17,7 @@ def get_body_text(url):
 def get_recommendations(body_text, target_keyword, destination_url):
     openai.api_key = st.secrets["OPENAI_API_KEY"]
 
-    # Refining the prompt
-    prompt = (f"Given the text, suggest sentences where a link with the anchor text '{target_keyword}' pointing to "
-              f"'{destination_url}' can be seamlessly added. Provide the original sentence and your recommended modification.\n\nText: {body_text}\n")
+    prompt = (f"Given the text, where would you suggest adding a link with the anchor text '{target_keyword}' pointing to '{destination_url}'?\n\nText: {body_text}\n")
     
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo-16k",
@@ -29,11 +27,7 @@ def get_recommendations(body_text, target_keyword, destination_url):
         ]
     )
     
-    # Extracting the recommendations
-    text = response['choices'][0]['message']['content']
-    recommendations = [rec.strip() for rec in text.split('\n') if target_keyword in rec]
-    
-    return recommendations[:3]  # Limit to 3 recommendations
+    return response['choices'][0]['message']['content']
 
 def main():
     st.title('The Anchor Textinator')
@@ -50,11 +44,7 @@ def main():
             if body_text:
                 recommendations = get_recommendations(body_text, target_keyword, destination_url)
                 st.subheader(f"Recommendations for {url}")
-                for rec in recommendations:
-                    # Displaying the original and modified sentences with enhanced formatting
-                    original = rec.split("Modified:")[0].replace("Original:", "").strip()
-                    modified = rec.split("Modified:")[1].strip()
-                    st.markdown(f"### Replace:\n\n{original}\n\n### With:\n\n{modified}", unsafe_allow_html=True)
+                st.write(recommendations)
 
 if __name__ == "__main__":
     main()
