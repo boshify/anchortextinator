@@ -17,8 +17,10 @@ def get_body_text(url):
 def get_recommendations(body_text, target_keyword, destination_url):
     openai.api_key = st.secrets["OPENAI_API_KEY"]
 
-    # Using chat-based approach for gpt-3.5-turbo-16k model
-    prompt = f"Given the text, provide recommendations on which sentences can be replaced to include a link with the anchor text '{target_keyword}' pointing to '{destination_url}'. Modify the sentence slightly if needed for a better fit. \n\nText: {body_text}\n"
+    # Refining the prompt to emphasize minimal changes and maintaining original meaning
+    prompt = (f"Given the text, identify sentences where a link with the anchor text '{target_keyword}' pointing to "
+              f"'{destination_url}' can be added. Modify the sentence minimally and ensure the original meaning is preserved. "
+              f"Provide the recommendations as 'original sentence' with 'modified sentence'.\n\nText: {body_text}\n")
     
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo-16k",
@@ -30,8 +32,8 @@ def get_recommendations(body_text, target_keyword, destination_url):
     
     # Assuming the assistant's reply is what we want
     text = response['choices'][0]['message']['content']
-    # Splitting the text into separate recommendations and filtering out empty lines
-    recommendations = [rec.strip() for rec in text.split('\n') if rec.strip() and target_keyword in rec]
+    # Filtering recommendations that can be split into original and modified parts
+    recommendations = [rec.strip() for rec in text.split('\n') if " with " in rec and target_keyword in rec]
     return recommendations[:3]  # Limit to 3 recommendations
 
 def main():
