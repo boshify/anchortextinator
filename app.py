@@ -18,9 +18,8 @@ def get_recommendations(body_text, target_keyword, destination_url):
     openai.api_key = st.secrets["OPENAI_API_KEY"]
 
     # Refining the prompt
-    prompt = (f"Identify complete sentences in the text where a hyperlink with the anchor text '{target_keyword}' pointing to "
-              f"'{destination_url}' can be added. Modify the sentence minimally while retaining the original meaning. "
-              f"Format the recommendation as: 'Original: [original sentence]' 'Modified: [modified sentence with hyperlinked anchor text]'.\n\nText: {body_text}\n")
+    prompt = (f"Given the text, suggest sentences where a link with the anchor text '{target_keyword}' pointing to "
+              f"'{destination_url}' can be seamlessly added. Provide the original sentence and your recommended modification.\n\nText: {body_text}\n")
     
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo-16k",
@@ -32,10 +31,7 @@ def get_recommendations(body_text, target_keyword, destination_url):
     
     # Extracting the recommendations
     text = response['choices'][0]['message']['content']
-    recommendations = []
-    for rec in text.split('\n'):
-        if "Original:" in rec and "Modified:" in rec:
-            recommendations.append(rec)
+    recommendations = [rec.strip() for rec in text.split('\n') if target_keyword in rec]
     
     return recommendations[:3]  # Limit to 3 recommendations
 
