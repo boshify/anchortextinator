@@ -17,7 +17,8 @@ def get_body_text(url):
 def get_recommendations(body_text, target_keyword, destination_url):
     openai.api_key = st.secrets["OPENAI_API_KEY"]
 
-    prompt = (f"Given the text, where would you suggest adding a link with the anchor text '{target_keyword}' pointing to '{destination_url}'?\n\nText: {body_text}\n")
+    prompt = (f"Given the text, where would you suggest adding a link with the anchor text '{target_keyword}' pointing to '{destination_url}'? "
+              "Please specify if the keyword can be directly linked or if a modification to the sentence is needed.\n\nText: {body_text}\n")
     
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo-16k",
