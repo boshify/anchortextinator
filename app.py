@@ -8,12 +8,11 @@ def get_body_text(url):
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.3'
     }
     try:
-        response = requests.get(url, headers=headers, timeout=10)  # Added timeout
+        response = requests.get(url, headers=headers, timeout=10)
         response.raise_for_status()
         soup = BeautifulSoup(response.content, 'html.parser')
-        # Extracting text from p, div, and span tags
         return ' '.join([tag.text for tag in soup.find_all(['p', 'div', 'span'])])
-    except requests.RequestException as e:  # Modified exception type
+    except requests.RequestException as e:
         st.warning(f"Failed to crawl {url}. Error: {e}")
         return None
 
@@ -24,7 +23,7 @@ def get_recommendations(body_text, target_keyword, destination_url):
               f"Please specify if the keyword can be directly linked or if a modification to the sentence is needed.\n\nText: {body_text}\n")
     
     response = openai.ChatCompletion.create(
-        model="gpt-4",
+        model="gpt-3.5-turbo-16k",
         messages=[
             {"role": "system", "content": "You are an SEO expert and master of internal linking."},
             {"role": "user", "content": prompt},
@@ -46,7 +45,9 @@ def main():
         for url in urls:
             body_text = get_body_text(url)
             if body_text:
-                recommendations = get_recommendations(body_text, target_keyword, destination_url)
+                # Ensure body_text is within token limit
+                truncated_text = body_text[:5000]  # Adjust this value as needed
+                recommendations = get_recommendations(truncated_text, target_keyword, destination_url)
                 st.subheader(f"Recommendations for {url}")
                 st.write(recommendations)
 
