@@ -2,7 +2,7 @@ import streamlit as st
 import requests
 from bs4 import BeautifulSoup
 import openai
-import http.client
+import http.client  # Import for handling the header limit
 
 def get_body_text(url):
     headers = {
