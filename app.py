@@ -41,15 +41,23 @@ def main():
 
     if st.button('Get Recommendations'):
         urls = [url.strip() for url_segment in source_urls.split('\n') for url in url_segment.split('\t') if url.strip()]
+        total_urls = len(urls)
+        progress_bar = st.progress(0)
         
-        for url in urls:
+        for index, url in enumerate(urls, start=1):
             body_text = get_body_text(url)
             if body_text:
-                # Ensure body_text is within token limit
-                truncated_text = body_text[:5000]  # Adjust this value as needed
+                truncated_text = body_text[:5000]
                 recommendations = get_recommendations(truncated_text, target_keyword, destination_url)
                 st.subheader(f"Recommendations for {url}")
-                st.write(recommendations)
+                with st.container():
+                    st.markdown(f'<div style="border:2px solid #F0F2F6; padding:10px; border-radius:10px;">{recommendations}</div>', unsafe_allow_html=True)
+                progress_bar.progress(index / total_urls)
+        
+        progress_bar.empty()  # Hide progress bar when done
+
+    st.markdown("---")  # Horizontal line
+    st.markdown('Made by [Jonathanboshoff.com](https://jonathanboshoff.com)')
 
 if __name__ == "__main__":
     main()
