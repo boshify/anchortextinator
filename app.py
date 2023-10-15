@@ -24,7 +24,7 @@ def get_recommendations(body_text, target_keyword, destination_url):
               f"Please specify if the keyword can be directly linked or if a modification to the sentence is needed.\n\nText: {body_text}\n")
     
     response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo-16k",
+        model="gpt-4",
         messages=[
             {"role": "system", "content": "You are an SEO expert and master of internal linking."},
             {"role": "user", "content": prompt},
