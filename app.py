@@ -49,9 +49,8 @@ def main():
             if body_text:
                 truncated_text = body_text[:5000]
                 recommendations = get_recommendations(truncated_text, target_keyword, destination_url)
-                st.subheader(f"Recommendations for {url}")
-                with st.container():
-                    st.markdown(f'<div style="border:2px solid #F0F2F6; padding:10px; border-radius:10px;">{recommendations}</div>', unsafe_allow_html=True)
+                box_content = f"**Recommendations for {url}**\n\n{recommendations}"
+                st.markdown(f'<div style="border:2px solid #F0F2F6; padding:10px; border-radius:10px; margin-bottom: 10px;">{box_content}</div>', unsafe_allow_html=True)
                 progress_bar.progress(index / total_urls)
         
         progress_bar.empty()  # Hide progress bar when done
