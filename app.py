@@ -2,12 +2,15 @@ import streamlit as st
 import requests
 from bs4 import BeautifulSoup
 import openai
+import http.client
 
 def get_body_text(url):
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.3'
     }
     try:
+        # Prevent http.client from raising an exception for too many headers
+        http.client._MAXHEADERS = 1000  # Increase max header limit
         response = requests.get(url, headers=headers, timeout=10)
         response.raise_for_status()
         soup = BeautifulSoup(response.content, 'html.parser')
@@ -15,6 +18,8 @@ def get_body_text(url):
     except requests.RequestException as e:
         st.warning(f"Failed to crawl {url}. Error: {e}")
         return None
+    finally:
+        http.client._MAXHEADERS = 100  # Reset max header limit to default
 
 def get_recommendations(body_text, target_keyword, destination_url):
     openai.api_key = st.secrets["OPENAI_API_KEY"]
