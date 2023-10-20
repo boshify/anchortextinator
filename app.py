@@ -19,13 +19,19 @@ def get_body_text(url):
 def get_recommendations(body_text, target_keyword, destination_url):
     openai.api_key = st.secrets["OPENAI_API_KEY"]
 
-    prompt = (f"Given the text, where would you suggest adding a link with the anchor text '{target_keyword}' pointing to '{destination_url}'? "
-              f"Please specify if the keyword can be directly linked or if a modification to the sentence is needed.\n\nText: {body_text}\n")
+    prompt = (f"Target content: {body_text}\n\n"
+              f"Destination:{destination_url}\n\n"
+              f"Anchor text: {target_keyword}\n\n"
+              "Provide 3 recommendations for where an internal link to the destination URL could be added using the specified anchor text. "
+              "The anchor text does not have to be exact. It just needs to be contextually similar. "
+              "Your output must include the following: \"**Change this sentence:**(insert the sentence here)\n\n**To this:**\"(modified sentence with internal link and anchor text added) "
+              "Internal links should be added contextually to existing text. Internal links must closely match the anchor text. If there is no close match, modify so it makes sense to the reader. "
+              "Do not output the entire page content. Only output recommendations. Separate recommendations with headings, line breaks, and dividers.")
     
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo-16k",
         messages=[
-            {"role": "system", "content": "You are an SEO expert and master of internal linking."},
+            {"role": "system", "content": "You are an SEO expert who excels at internal linking and anchor text. Your recommendations must be highly logical. They should make sense contextually. Your response must always be in markdown format. Use line breaks, dividers, and bold text to make output easy to read. Do not add introductions, summaries, or conclusions."},
             {"role": "user", "content": prompt},
         ]
     )
